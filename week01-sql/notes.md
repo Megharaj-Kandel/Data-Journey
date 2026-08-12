@@ -139,3 +139,141 @@ SELECT Title, Director FROM movies WHERE Director NOT IN ('John Lasseter', 'Pete
 - Use `LIKE` when you need flexible or partial matching — very common for searching names, titles, or text fields.
 - `%` is the most-used wildcard in real-world queries (e.g., searching for any email containing "@gmail.com").
 - `IN` is a cleaner shortcut than writing multiple `OR` conditions for the same column.
+
+
+## Lesson 4:  Filtering and Sorting Query Results
+
+While working through some SQL practice exercises, I learned how to filter, sort, group, and paginate query results using `DISTINCT`, `ORDER BY`, `GROUP BY`, `LIMIT`, and `OFFSET`. Below are my notes with examples, based on a sample table called `north_american_cities`.
+
+## Sample Table: `north_american_cities`
+
+| City | Country | Population | Latitude | Longitude |
+|------|---------|------------|----------|-----------|
+| Guadalajara | Mexico | 1500800 | 20.659699 | -103.349609 |
+| Toronto | Canada | 2795060 | 43.653226 | -79.383184 |
+| Houston | United States | 2195914 | 29.760427 | -95.369803 |
+| New York | United States | 8405837 | 40.712784 | -74.005941 |
+| Philadelphia | United States | 1553165 | 39.952584 | -75.165222 |
+| Havana | Cuba | 2106146 | 23.05407 | -82.345189 |
+| Mexico City | Mexico | 8555500 | 19.432608 | -99.133208 |
+| Phoenix | United States | 1513367 | 33.448377 | -112.074037 |
+| Los Angeles | United States | 3884307 | 34.052234 | -118.243685 |
+| Ecatepec de Morelos | Mexico | 1742000 | 19.601841 | -99.050674 |
+
+---
+
+## 1. DISTINCT — Remove duplicate values
+
+Used to return only unique values from a column, removing repeats.
+
+\`\`\`sql
+SELECT DISTINCT Country FROM north_american_cities;
+\`\`\`
+
+**Result:** Mexico, Canada, United States, Cuba (each listed once, no matter how many cities belong to it).
+
+---
+
+## 2. ORDER BY — Sort results
+
+Sorts rows in ascending (`ASC`, default) or descending (`DESC`) order.
+
+**Example — order US cities by latitude, north to south:**
+
+\`\`\`sql
+SELECT City, Latitude
+FROM north_american_cities
+WHERE Country = 'United States'
+ORDER BY Latitude DESC;
+\`\`\`
+
+North to south means highest latitude first, so `DESC` is used.
+
+---
+
+## 3. WHERE + ORDER BY — Filtering combined with sorting
+
+**Example — cities west of Chicago (longitude -87.6298), ordered west to east:**
+
+\`\`\`sql
+SELECT City, Country, Longitude
+FROM north_american_cities
+WHERE Longitude < -87.6298
+ORDER BY Longitude ASC;
+\`\`\`
+
+Since longitude values get more negative moving west, `Longitude < -87.6298` filters to cities west of Chicago, and sorting `ASC` lists the furthest-west city first.
+
+---
+
+## 4. GROUP BY — Group rows for aggregation
+
+Combines rows sharing the same value in a column so aggregate functions (`AVG`, `SUM`, `COUNT`, etc.) can summarize each group.
+
+**Example — average population per country:**
+
+\`\`\`sql
+SELECT Country, AVG(Population) AS average_population
+FROM north_american_cities
+GROUP BY Country
+ORDER BY average_population DESC;
+\`\`\`
+
+---
+
+## 5. LIMIT and OFFSET — Restrict and paginate results
+
+- `LIMIT` restricts how many rows are returned.
+- `OFFSET` skips a number of rows before returning results.
+
+**Example — two largest cities in Mexico:**
+
+\`\`\`sql
+SELECT City, Country, Population
+FROM north_american_cities
+WHERE Country = 'Mexico'
+ORDER BY Population DESC
+LIMIT 2;
+\`\`\`
+
+**Example — third and fourth largest cities in the United States:**
+
+\`\`\`sql
+SELECT City, Country, Population
+FROM north_american_cities
+WHERE Country = 'United States'
+ORDER BY Population DESC
+LIMIT 2 OFFSET 2;
+\`\`\`
+
+**Pagination formula:**
+
+\`\`\`
+OFFSET = (page_number - 1) × page_size
+LIMIT = page_size
+\`\`\`
+
+**Nth and (N+1)th largest formula:**
+
+\`\`\`
+OFFSET = N - 1
+LIMIT = 2
+\`\`\`
+
+---
+
+## Quick Reference Table
+
+| Clause | Purpose |
+|--------|---------|
+| `DISTINCT` | Removes duplicate values from results |
+| `ORDER BY` | Sorts results in ascending or descending order |
+| `GROUP BY` | Groups rows for use with aggregate functions |
+| `LIMIT` | Restricts the number of rows returned |
+| `OFFSET` | Skips a number of rows before returning results |
+
+---
+
+### Key Takeaway
+
+These clauses are commonly combined in real-world queries — filtering data with `WHERE`, grouping it with `GROUP BY`, sorting it with
