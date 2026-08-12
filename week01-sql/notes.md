@@ -13,10 +13,13 @@ SELECT column1, column2 FROM table_name;
 ```
 
 - Use `*` to select all columns:
+
 ```sql
 SELECT * FROM movies;
 ```
+
 - Select specific columns to keep results clean and relevant:
+
 ```sql
 SELECT Title, Director FROM movies;
 ```
@@ -85,7 +88,54 @@ SELECT Title, Director FROM movies WHERE Director IN ('Brad Bird', 'Andrew Stant
 ---
 
 ## Key takeaways
+
 - `SELECT` retrieves data; `WHERE` filters it based on conditions.
 - Comparison operators (`=`, `!=`, `>`, `<`) compare individual values.
 - `AND`/`OR`/`NOT` combine or reverse multiple conditions.
 - `BETWEEN` and `IN` are shortcuts that make filtering ranges or lists cleaner than writing multiple `OR` conditions.
+
+
+---
+
+## Lesson 3: String matching with LIKE
+
+While `=` checks for an exact match, `LIKE` is used for flexible, pattern-based string matching — and it's case-insensitive, unlike `=`.
+
+| Operator     | Meaning                                              | Example |
+|--------------|--------------------------------------------------------|---------|
+| `=`          | Case-sensitive exact match                              | `col_name = "abc"` |
+| `!=` or `<>` | Case-sensitive exact inequality                          | `col_name != "abcd"` |
+| `LIKE`       | Case-insensitive exact match                             | `col_name LIKE "ABC"` |
+| `NOT LIKE`   | Case-insensitive exact inequality                         | `col_name NOT LIKE "ABCD"` |
+| `IN (...)`   | Value exists in a given list                              | `col_name IN ("A", "B", "C")` |
+| `NOT IN (...)` | Value does not exist in a given list                   | `col_name NOT IN ("D", "E", "F")` |
+
+### Wildcards (used only with LIKE / NOT LIKE)
+
+| Wildcard | Meaning                                             | Example |
+|----------|--------------------------------------------------------|---------|
+| `%`      | Matches zero or more characters, anywhere in the string  | `col_name LIKE "%AT%"` → matches "AT", "ATTIC", "CAT", "BATS" |
+| `_`      | Matches exactly one character                            | `col_name LIKE "AN_"` → matches "AND", but not "AN" |
+
+### Practice queries
+
+```sql
+-- Movies with titles containing "Story" (e.g. Toy Story, Toy Story 2)
+SELECT Title FROM movies WHERE Title LIKE '%Story%';
+
+-- Movies NOT directed by anyone with "Bird" in their name
+SELECT Title, Director FROM movies WHERE Director NOT LIKE '%Bird%';
+
+-- Directors matching a specific list
+SELECT Title, Director FROM movies WHERE Director IN ('John Lasseter', 'Pete Docter');
+
+-- Directors excluded from a specific list
+SELECT Title, Director FROM movies WHERE Director NOT IN ('John Lasseter', 'Pete Docter');
+```
+
+### Key takeaways
+
+- Use `=` when you need an exact, case-sensitive match.
+- Use `LIKE` when you need flexible or partial matching — very common for searching names, titles, or text fields.
+- `%` is the most-used wildcard in real-world queries (e.g., searching for any email containing "@gmail.com").
+- `IN` is a cleaner shortcut than writing multiple `OR` conditions for the same column.
