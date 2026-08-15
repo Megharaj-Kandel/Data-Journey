@@ -276,7 +276,7 @@ LIMIT = 2
 
 These clauses are commonly combined in real-world queries — filtering data with `WHERE`, grouping it with `GROUP BY`, sorting it with Limit and offset
 
-# Lesson 4 — SQL JOINs (INNER, LEFT, RIGHT)
+# Lesson 5 — SQL JOINs (INNER, LEFT, RIGHT)
 
 This lesson covers how to combine data from two tables using `JOIN`, and the difference between `INNER JOIN`, `LEFT JOIN`, and `RIGHT JOIN`.
 
