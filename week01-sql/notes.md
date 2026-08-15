@@ -94,7 +94,6 @@ SELECT Title, Director FROM movies WHERE Director IN ('Brad Bird', 'Andrew Stant
 - `AND`/`OR`/`NOT` combine or reverse multiple conditions.
 - `BETWEEN` and `IN` are shortcuts that make filtering ranges or lists cleaner than writing multiple `OR` conditions.
 
-
 ---
 
 ## Lesson 3: String matching with LIKE
@@ -140,7 +139,6 @@ SELECT Title, Director FROM movies WHERE Director NOT IN ('John Lasseter', 'Pete
 - `%` is the most-used wildcard in real-world queries (e.g., searching for any email containing "@gmail.com").
 - `IN` is a cleaner shortcut than writing multiple `OR` conditions for the same column.
 
-
 ## Lesson 4:  Filtering and Sorting Query Results
 
 While working through some SQL practice exercises, I learned how to filter, sort, group, and paginate query results using `DISTINCT`, `ORDER BY`, `GROUP BY`, `LIMIT`, and `OFFSET`. Below are my notes with examples, based on a sample table called `north_american_cities`.
@@ -148,7 +146,7 @@ While working through some SQL practice exercises, I learned how to filter, sort
 ## Sample Table: `north_american_cities`
 
 | City | Country | Population | Latitude | Longitude |
-|------|---------|------------|----------|-----------|
+| ------ | --------- | ------------ | ---------- | ----------- |
 | Guadalajara | Mexico | 1500800 | 20.659699 | -103.349609 |
 | Toronto | Canada | 2795060 | 43.653226 | -79.383184 |
 | Houston | United States | 2195914 | 29.760427 | -95.369803 |
@@ -265,7 +263,7 @@ LIMIT = 2
 ## Quick Reference Table
 
 | Clause | Purpose |
-|--------|---------|
+| -------- | --------- |
 | `DISTINCT` | Removes duplicate values from results |
 | `ORDER BY` | Sorts results in ascending or descending order |
 | `GROUP BY` | Groups rows for use with aggregate functions |
@@ -276,4 +274,118 @@ LIMIT = 2
 
 ### Key Takeaway
 
-These clauses are commonly combined in real-world queries — filtering data with `WHERE`, grouping it with `GROUP BY`, sorting it with
+These clauses are commonly combined in real-world queries — filtering data with `WHERE`, grouping it with `GROUP BY`, sorting it with Limit and offset
+
+# Lesson 4 — SQL JOINs (INNER, LEFT, RIGHT)
+
+This lesson covers how to combine data from two tables using `JOIN`, and the difference between `INNER JOIN`, `LEFT JOIN`, and `RIGHT JOIN`.
+
+---
+
+## What is a JOIN?
+
+A `JOIN` combines rows from two (or more) tables based on a related column between them. Instead of querying tables separately, a join lets you pull matching data together into a single result — like connecting a customer to their orders, or a student to their class.
+
+---
+
+## Real-Life Example: Customers & Orders
+
+Imagine a simple online store database.
+
+**Customers**
+
+| CustomerID | Name |
+| --- | --- |
+| 1 | Ram |
+| 2 | Sita |
+| 3 | Hari |
+| 4 | Gita |
+
+**Orders**
+
+| OrderID | Item | CustomerID |
+| --- | --- | --- |
+| 101 | Laptop | 1 |
+| 102 | Phone | 1 |
+| 103 | Headphones | 2 |
+| 104 | Charger | 99 |
+
+Notice two important mismatches:
+
+- **Hari** and **Gita** (CustomerID 3 and 4) have never placed an order.
+- Order 104 (Charger) belongs to CustomerID **99**, which doesn't exist in the Customers table — maybe a data entry mistake, or a deleted account.
+
+This kind of mismatch is exactly what makes JOIN types behave differently, and it's realistic — in real databases, not every customer has ordered something, and not every order cleanly matches a customer.
+
+---
+
+## 1. INNER JOIN
+
+Returns only rows where there's a **match in both tables**. Anything unmatched on either side is dropped completely.
+
+```sql
+SELECT Name, Item
+FROM Customers
+JOIN Orders
+    ON Customers.CustomerID = Orders.CustomerID;
+```
+
+**Result:**
+
+| Name | Item |
+| --- | --- |
+| Ram | Laptop |
+| Ram | Phone |
+| Sita | Headphones |
+
+Hari and Gita are gone (no orders). The mystery order 104 is gone too (no matching customer). Only *confirmed pairs* survive.
+
+**Use INNER JOIN when:** you only care about customers who have actually ordered something.
+
+---
+
+## 2. LEFT JOIN
+
+Returns **every row from the left table**, plus matches from the right table. If there's no match, the right table's columns come back as `NULL`.
+
+```sql
+SELECT Name, Item
+FROM Customers
+LEFT JOIN Orders
+    ON Customers.CustomerID = Orders.CustomerID;
+```
+
+**Result:**
+
+| Name | Item |
+| --- | --- |
+| Ram | Laptop |
+| Ram | Phone |
+| Sita | Headphones |
+| Hari | NULL |
+| Gita | NULL |
+
+Every customer shows up — even Hari and Gita, who never ordered anything. `Customers` is the left table, so `LEFT JOIN` guarantees it's fully preserved.
+
+The mystery order (CustomerID 99) is missing here, because it belongs to `Orders` — the unprotected side.
+
+**Use LEFT JOIN when:** you want every customer, including ones with zero orders (e.g., "find customers who haven't ordered anything yet" — those NULL rows are your answer).
+
+---
+
+## 3. RIGHT JOIN
+
+The mirror image of `LEFT JOIN`. Returns **every row from the right table**, plus matches from the left table. Unmatched left-side rows become `NULL`.
+
+```sql
+SELECT Name, Item
+FROM Customers
+RIGHT JOIN Orders
+    ON Customers.CustomerID = Orders.CustomerID;
+```
+
+**Result:**
+
+| Name | Item |
+|---|---|
+| Ram | Laptop
