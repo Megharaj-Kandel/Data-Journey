@@ -389,3 +389,159 @@ RIGHT JOIN Orders
 | Name | Item |
 |---|---|
 | Ram | Laptop
+
+
+# 📘 Lesson 6: SQL Aggregate Functions
+
+Today's lesson covers **Aggregate Functions** — these take a bunch of rows and squash them into **one summary value**, like a total, an average, or a count.
+
+---
+
+## Sample Table
+
+**`orders`**
+
+| order_id | customer | amount | quantity |
+|----------|----------|--------|----------|
+| 1        | Sebika   | 500    | 2        |
+| 2        | Ram      | 1200   | 5        |
+| 3        | Sita     | 750    | 3        |
+| 4        | Hari     | 300    | 1        |
+| 5        | Sebika   | 900    | 4        |
+
+---
+
+### 1️⃣ COUNT() — "How many?"
+
+```sql
+SELECT COUNT(*) AS total_orders
+FROM orders;
+```
+
+**Result:** `5`
+
+> `COUNT(*)` counts every row. `COUNT(column_name)` only counts rows where that column isn't NULL.
+
+---
+
+### 2️⃣ SUM() — "What's the total?"
+
+```sql
+SELECT SUM(amount) AS total_revenue
+FROM orders;
+```
+
+**Result:** `3650`
+
+You can combine it with `WHERE` to sum a specific subset:
+
+```sql
+SELECT SUM(amount) AS sebika_total
+FROM orders
+WHERE customer = 'Sebika';
+```
+
+**Result:** `1400` (500 + 900)
+
+---
+
+### 3️⃣ AVG() — "What's the average?"
+
+```sql
+SELECT AVG(amount) AS average_order_value
+FROM orders;
+```
+
+**Result:** `730`
+
+> AVG automatically ignores NULL values — it doesn't treat them as 0.
+
+---
+
+### 4️⃣ MIN() — "What's the smallest?"
+
+```sql
+SELECT MIN(amount) AS cheapest_order
+FROM orders;
+```
+
+**Result:** `300`
+
+---
+
+### 5️⃣ MAX() — "What's the biggest?"
+
+```sql
+SELECT MAX(amount) AS biggest_order
+FROM orders;
+```
+
+**Result:** `1200`
+
+---
+
+## 🔗 Combining Aggregates with GROUP BY
+
+`GROUP BY` splits the table into groups (like "per customer") so aggregates calculate separately for each group instead of the whole table.
+
+```sql
+SELECT customer, SUM(amount) AS total_spent, COUNT(*) AS num_orders
+FROM orders
+GROUP BY customer;
+```
+
+**Result:**
+
+| customer | total_spent | num_orders |
+|----------|--------------|-------------|
+| Sebika   | 1400         | 2           |
+| Ram      | 1200         | 1           |
+| Sita     | 750          | 1           |
+| Hari     | 300          | 1           |
+
+---
+
+## 🎯 Filtering Groups with HAVING
+
+`WHERE` can't filter aggregate results — that's what `HAVING` is for.
+
+```sql
+SELECT customer, SUM(amount) AS total_spent
+FROM orders
+GROUP BY customer
+HAVING SUM(amount) > 500;
+```
+
+**Result:**
+
+| customer | total_spent |
+|----------|--------------|
+| Sebika   | 1400         |
+| Ram      | 1200         |
+| Sita     | 750          |
+
+> 🔑 **WHERE** filters rows *before* grouping. **HAVING** filters groups *after* aggregation.
+
+---
+
+## 🧠 Quick Recap
+
+| Function  | What it Does                          |
+|-----------|-----------------------------------------|
+| COUNT()   | Counts rows (or non-NULL values)        |
+| SUM()     | Adds up values                          |
+| AVG()     | Calculates the average                  |
+| MIN()     | Finds the smallest value                |
+| MAX()     | Finds the largest value                 |
+| GROUP BY  | Groups rows before aggregating          |
+| HAVING    | Filters groups after aggregation        |
+
+---
+
+## ✅ What I Learned Today
+
+- How to summarize data using aggregate functions
+- How to group results with `GROUP BY`
+- The difference between `WHERE` and `HAVING`
+
+*Next up: Subqueries and nested SELECT statements 🚀*
